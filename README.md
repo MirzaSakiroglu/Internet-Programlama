@@ -2,6 +2,6 @@
 
 ## Ödevler
 
-1. Hafta-2 genel kavramlar
+1- İnternet Programlama genel kavramlar
 
 ## Projeler
