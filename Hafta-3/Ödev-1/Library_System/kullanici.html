@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kullanıcı Paneli | MSB Library</title>
+  <link rel="stylesheet" href="genel.css" />
+  <style>
+    /* Sadece bu sayfaya özgü stil ayarları */
+    .user-container {
+        display: flex;
+        gap: 30px;
+        padding: 30px;
+        max-width: 1200px;
+        margin: 30px auto;
+    }
+    .user-main {
+        flex: 1;
+    }
+    .panel {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        padding: 18px;
+        margin-bottom: 20px;
+    }
+    .panel-header h3 {
+        margin: 0 0 6px 0;
+        color: #001f3f;
+    }
+    .panel-header .muted {
+        color: #666;
+        margin: 0 0 10px 0;
+    }
+    .table-wrap {
+        overflow: auto;
+    }
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 8px;
+    }
+    .table thead th {
+        text-align: left;
+        font-size: 0.9rem;
+        padding: 8px 6px;
+        color: #003049;
+    }
+    .table tbody td {
+        padding: 10px 6px;
+        border-top: 1px solid #f1f1f1;
+        font-size: 0.95rem;
+        vertical-align: middle;
+    }
+    .ops {
+        display: flex;
+        gap: 8px;
+    }
+    /* Kitap durumu etiketleri */
+    .status-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    .available { background-color: #e6ffed; color: #007a33; }
+    .reserved { background-color: #fff3e0; color: #e65100; }
+    
+    /* Panel Göster/Gizle */
+    .content-section {
+        display: none; /* Varsayılan olarak tüm bölümleri gizle */
+    }
+    .content-section.active {
+        display: block; /* Aktif olan bölümü göster */
+    }
+
+    /* Profil Ayarları Formu */
+    .profile-form .form-group {
+        margin-bottom: 15px;
+    }
+    .profile-form label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #001f3f;
+    }
+    .profile-form input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  
+  <header class="navbar">
+    <div class="logo">
+      <img src="logo.png" alt="MSB Library Logo" />
+      <h1>MSB Library</h1>
+    </div>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="index.html">Ana Sayfa</a></li>
+        <li><a href="hakkimizda.html">Hakkımızda</a></li>
+        <li><a href="misyon-vizyon.html">Misyon & Vizyon</a></li>
+        <li><a href="iletisim.html">İletişim</a></li>
+        <li><a href="login.html" class="active">Kullanıcı Paneli</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="user-container">
+
+    <aside class="admin-sidebar"> 
+      <div class="admin-profile">
+        <img src="logo.png" alt="user profile" />
+        <div>
+          <h3>Hoş Geldiniz!</h3>
+          <p id="userName">Deneme Üye</p>
+        </div>
+      </div>
+
+      <ul id="user-menu" class="admin-menu">
+        <li class="active" data-content="catalog">Kitap Kataloğu</li>
+        <li data-content="reservations">Rezervasyonlarım</li>
+        <li data-content="profile">Profil Ayarları</li>
+      </ul>
+
+      <div class="small-note">
+        <strong>Bilgi:</strong>
+        Bu paneldeki veriler Local Storage'da simüle edilmektedir.
+      </div>
+    </aside>
+
+    <section class="user-main">
+      
+      <div id="catalog" class="content-section active">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Kütüphane Kataloğu</h3>
+              <p class="muted">Aşağıdaki listeden kitapları inceleyebilir ve rezerve edebilirsiniz.</p>
+            </div>
+    
+            <div class="panel-body">
+              <input id="bookSearch" placeholder="Kitap veya yazar ara..." style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 12px;"/>
+              
+              <div class="table-wrap">
+                <table id="catalogTable" class="table">
+                  <thead>
+                    <tr><th>Başlık</th><th>Yazar</th><th>Kategori</th><th>Durum</th><th>İşlemler</th></tr>
+                  </thead>
+                  <tbody>
+                    </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+    
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Önemli Duyurular</h3>
+              <p class="muted">Kütüphane ile ilgili güncel bilgileri buradan takip edebilirsiniz.</p>
+            </div>
+    
+            <div class="panel-body ann-list">
+              <ul id="announcements">
+                 </ul>
+            </div>
+          </div>
+      </div>
+
+      <div id="reservations" class="content-section">
+        <div class="panel">
+            <div class="panel-header">
+                <h3>Rezervasyon Listem</h3>
+                <p class="muted">Rezerve ettiğiniz kitapların listesi ve son teslim tarihleri.</p>
+            </div>
+            <div class="panel-body">
+                <div class="table-wrap">
+                    <table id="reservationsTable" class="table">
+                      <thead>
+                        <tr><th>Kitap Adı</th><th>Yazar</th><th>Rezervasyon Tarihi</th><th>İşlemler</th></tr>
+                      </thead>
+                      <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <div id="profile" class="content-section">
+        <div class="panel">
+            <div class="panel-header">
+                <h3>Kullanıcı Bilgileri ve Şifre Güncelleme</h3>
+                <p class="muted">Bilgilerinizi güncelleyebilir veya şifrenizi değiştirebilirsiniz.</p>
+            </div>
+            <div class="panel-body">
+                <form class="profile-form">
+                    <h4>Kişisel Bilgiler</h4>
+                    <div class="form-group">
+                        <label for="profileName">Ad Soyad</label>
+                        <input type="text" id="profileName" value="Deneme Üye" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="profileEmail">E-Posta</label>
+                        <input type="email" id="profileEmail" value="deneme@msb.edu.tr" disabled>
+                    </div>
+
+                    <h4>Şifre Güncelleme</h4>
+                    <div class="form-group">
+                        <label for="oldPassword">Eski Şifre</label>
+                        <input type="password" id="oldPassword">
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">Yeni Şifre</label>
+                        <input type="password" id="newPassword">
+                    </div>
+                    <button type="submit" class="btn">Bilgileri Güncelle</button>
+                </form>
+            </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 MSB Library | İstanbul Medeniyet Üniversitesi</p>
+  </footer>
+
+  <script>
+    /* Yardımcılar */
+    const $ = (s) => document.querySelector(s);
+    const $$ = (s) => document.querySelectorAll(s);
+
+    /* Veri yapıları localStorage anahtarları */
+    const LS_BOOKS = 'msb_books_v1';
+    const LS_ANN = 'msb_ann_v1';
+    const LS_USER_RESERVATIONS = 'msb_user_res_v1';
+
+    /* Başlangıç: localStorage'tan yükle veya boş dizi */
+    const load = (k) => JSON.parse(localStorage.getItem(k) || '[]');
+    const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+
+    let books = load(LS_BOOKS);
+    let anns = load(LS_ANN);
+    let reservations = load(LS_USER_RESERVATIONS);
+    
+    // Simülasyon: Eğer kitap listesi boşsa, birkaç örnek kitap ekle 
+    if (books.length === 0) {
+        books.push(
+            {id: 1, title: 'Algoritmalar ve Veri Yapıları', author: 'A. Yazar', year: '2020', category: 'Bilgisayar'},
+            {id: 2, title: 'İleri Programlama', author: 'B. Yazar', year: '2019', category: 'Bilgisayar'},
+            {id: 3, title: 'Modern Türk Edebiyatı', author: 'C. Şair', year: '2015', category: 'Edebiyat'},
+            {id: 4, title: 'Ekonomi Prensipleri', author: 'D. Ekonomist', year: '2022', category: 'Sosyal Bilimler'}
+        );
+        // Kitaplara ID eklemek için save'i init'te yaptık
+    }
+
+
+    /* RENDER fonksiyonları */
+    const catalogTbody = $('#catalogTable tbody');
+    const reservationsTbody = $('#reservationsTable tbody');
+    const annList = $('#announcements');
+    const userMenu = $('#user-menu');
+
+    function escapeHtml(s) {
+      if (!s) return '';
+      return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+    }
+
+
+    /* 1. KİTAP KATALOĞU RENDER */
+    function renderCatalog(filter = '') {
+      catalogTbody.innerHTML = '';
+      const filtered = books.filter(b =>
+        (b.title + ' ' + b.author + ' ' + (b.category||'')).toLowerCase().includes(filter.toLowerCase())
+      );
+      
+      filtered.forEach((b) => {
+        // Kitap rezervasyonlarda var mı kontrol et
+        const isReserved = reservations.some(res => res.bookId === b.id);
+        const statusClass = isReserved ? 'reserved' : 'available';
+        const statusText = isReserved ? 'Rezerve Edildi' : 'Mevcut';
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHtml(b.title)}</td>
+          <td>${escapeHtml(b.author)}</td>
+          <td>${escapeHtml(b.category||'—')}</td>
+          <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+          <td class="ops">
+            <button 
+              data-id="${b.id}" 
+              class="btn small reserve-book" 
+              ${isReserved ? 'disabled' : ''}
+              style="background-color:${isReserved ? '#ccc' : '#00bfff'}; cursor:${isReserved ? 'not-allowed' : 'pointer'};"
+            >
+              ${isReserved ? 'Rezerve Edildi' : 'Rezerve Et'}
+            </button>
+          </td>
+        `;
+        catalogTbody.appendChild(tr);
+      });
+    }
+
+    /* 2. REZERVASYONLARIM RENDER */
+    function renderReservations() {
+        reservationsTbody.innerHTML = '';
+        
+        if (reservations.length === 0) {
+            reservationsTbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Henüz rezerve ettiğiniz bir kitap bulunmamaktadır.</td></tr>';
+            return;
+        }
+
+        reservations.forEach((res, i) => {
+            const book = books.find(b => b.id === res.bookId);
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${escapeHtml(res.bookTitle)}</td>
+              <td>${escapeHtml(book ? book.author : 'Bilinmiyor')}</td>
+              <td>${new Date(res.reserveDate).toLocaleDateString()}</td>
+              <td class="ops">
+                <button data-i="${i}" class="btn danger small cancel-reservation">İptal Et</button>
+              </td>
+            `;
+            reservationsTbody.appendChild(tr);
+        });
+    }
+    
+    /* 3. DUYURULAR RENDER */
+    function renderAnns() {
+        annList.innerHTML = '';
+        if(anns.length === 0) {
+             annList.innerHTML = '<li>Güncel duyuru bulunmamaktadır.</li>';
+             return;
+        }
+        anns.forEach((a) => {
+            const li = document.createElement('li');
+            li.innerHTML = `<strong>${escapeHtml(a.title)}</strong>
+              <p>${escapeHtml(a.content)}</p>
+              <small class="muted">${new Date(a.date).toLocaleDateString()}</small>`;
+            annList.appendChild(li);
+        });
+    }
+    
+    /* İŞLEMLER */
+    
+    // Sidebar Menü Kontrolü
+    userMenu.addEventListener('click', (e) => {
+        const menuItem = e.target.closest('li');
+        if (!menuItem) return;
+
+        const targetContentId = menuItem.dataset.content;
+        
+        // Menü butonlarının aktifliğini ayarla
+        $$('#user-menu li').forEach(li => li.classList.remove('active'));
+        menuItem.classList.add('active');
+
+        // İçerik panellerinin görünürlüğünü ayarla
+        $$('.content-section').forEach(section => section.classList.remove('active'));
+        const targetSection = $(`#${targetContentId}`);
+        if (targetSection) {
+            targetSection.classList.add('active');
+            
+            // Rezervasyonlar sayfasına geçildiğinde listeyi yeniden çiz
+            if (targetContentId === 'reservations') {
+                renderReservations();
+            }
+        }
+    });
+
+    // Arama İşlemi
+    $('#bookSearch').addEventListener('input', (e)=> renderCatalog(e.target.value));
+
+    // Rezervasyon İşlemi
+    catalogTbody.addEventListener('click', (ev) => {
+      if (ev.target.matches('.reserve-book')) {
+        const bookId = Number(ev.target.dataset.id);
+        const book = books.find(b => b.id === bookId);
+
+        if (!book) return;
+
+        if (reservations.some(res => res.bookId === bookId)) {
+            alert('Bu kitap zaten rezerve edilmiş!');
+            return;
+        }
+
+        // Rezervasyonu simüle et
+        reservations.push({
+            bookId: bookId,
+            bookTitle: book.title,
+            userId: 1, // Simülasyon
+            reserveDate: new Date().toISOString()
+        });
+
+        save(LS_USER_RESERVATIONS, reservations);
+        alert(`${book.title} başarıyla rezerve edildi!`);
+        renderCatalog($('#bookSearch').value); // Listeyi güncelle
+      }
+    });
+
+    // Rezervasyon İptal İşlemi
+    reservationsTbody.addEventListener('click', (ev) => {
+        if (ev.target.matches('.cancel-reservation')) {
+            const i = Number(ev.target.dataset.i);
+            const bookTitle = reservations[i].bookTitle;
+            
+            if (!confirm(`${bookTitle} adlı kitabın rezervasyonunu iptal etmek istediğinize emin misiniz?`)) return;
+
+            // İptal et ve Local Storage'ı güncelle
+            reservations.splice(i, 1);
+            save(LS_USER_RESERVATIONS, reservations);
+            
+            alert(`${bookTitle} rezervasyonu iptal edildi.`);
+            renderReservations(); // Rezervasyon listesini güncelle
+            renderCatalog($('#bookSearch').value); // Katalog listesini (durumlar için) güncelle
+        }
+    });
+
+    // Profil Güncelleme Formu Simülasyonu
+    $('.profile-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const oldPass = $('#oldPassword').value;
+        const newPass = $('#newPassword').value;
+        
+        if (oldPass.trim() === '' || newPass.trim() === '') {
+            alert('Lütfen tüm şifre alanlarını doldurunuz.');
+            return;
+        }
+
+        if (oldPass === '123456') { // Simülasyon için varsayılan şifre
+            alert('Şifreniz başarıyla güncellendi! (Simülasyon)');
+        } else {
+            alert('Hata: Eski şifreniz yanlış.');
+        }
+
+        e.target.reset();
+    });
+
+    /* Başlangıç Yüklemesi */
+    function init() {
+      // Kitapların id'sinin unique olmasını simüle edelim
+      if (books.length > 0 && !books.every(b => b.id)) {
+          books = books.map((b, i) => ({...b, id: i + 1}));
+          save(LS_BOOKS, books);
+      }
+      
+      renderCatalog();
+      renderAnns();
+    }
+
+    init();
+  </script>
+</body>
+</html>
