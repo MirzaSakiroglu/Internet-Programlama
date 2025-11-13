@@ -10,4 +10,6 @@ Hafta-3 -> Kütüphane Yönetim Sistemi Web sitesi için kullanıcı girişleri 
 
 Hafta-4 -> Kütüphane Yönetim Sistemi Web sitesi için kullanıcı girişleri düzenlendi, yeni kullanıcı ekleme arayüzü oluşturuldu. Database içerisindeki veriler için frontend display güncellemeleri yapıldı
 
+Hafta-5 -> MVC Yapısı kullanılarak bir DB bağlantılı öğrenci yönetim sistemi geliştirildi
+
 ## Projeler
